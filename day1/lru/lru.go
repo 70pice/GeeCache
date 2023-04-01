@@ -62,16 +62,21 @@ func (c *Cache) RemoveOldest() {
 
 func (c *Cache) Add(key string, value Value) {
 	if ele, ok := c.cache[key]; ok {
+		// 原有的键是否存在，存在进入这个逻辑
+		// 如果存在将元素移动到队首
 		c.ll.MoveToFront(ele)
 		kv := ele.Value.(*entry)
+		// nbytes是已经使用的内存大小，因为原有的value可能会被替换，内存重新计算
 		c.nbytes += int64(value.len()) - int64(kv.value.len())
 		kv.value = value
 	} else {
+		// 创建一个新的接地那插入，在队首插入
 		ele := c.ll.PushFront(&entry{key, value})
 		c.cache[key] = ele
 		c.nbytes += int64(len(key)) + int64(value.len())
 	}
 	for c.maxBytes != 0 && c.maxBytes < c.nbytes {
+		// 插入之后需要更新内存，如果内存超出限制，应该削减内存
 		c.RemoveOldest()
 	}
 }
