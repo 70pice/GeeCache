@@ -23,7 +23,7 @@ type entry struct {
 }
 
 type Value interface {
-	len() int
+	Len() int
 }
 
 func New(maxBytes int64, onEvicted func(string, Value)) *Cache {
@@ -53,7 +53,7 @@ func (c *Cache) RemoveOldest() {
 		c.ll.Remove(ele)
 		kv := ele.Value.(*entry)
 		delete(c.cache, kv.key)
-		c.nbytes -= int64(len(kv.key)) + int64(kv.value.len())
+		c.nbytes -= int64(len(kv.key)) + int64(kv.value.Len())
 		if c.OnEvicted != nil {
 			c.OnEvicted(kv.key, kv.value)
 		}
@@ -67,13 +67,13 @@ func (c *Cache) Add(key string, value Value) {
 		c.ll.MoveToFront(ele)
 		kv := ele.Value.(*entry)
 		// nbytes是已经使用的内存大小，因为原有的value可能会被替换，内存重新计算
-		c.nbytes += int64(value.len()) - int64(kv.value.len())
+		c.nbytes += int64(value.Len()) - int64(kv.value.Len())
 		kv.value = value
 	} else {
 		// 创建一个新的接地那插入，在队首插入
 		ele := c.ll.PushFront(&entry{key, value})
 		c.cache[key] = ele
-		c.nbytes += int64(len(key)) + int64(value.len())
+		c.nbytes += int64(len(key)) + int64(value.Len())
 	}
 	for c.maxBytes != 0 && c.maxBytes < c.nbytes {
 		// 插入之后需要更新内存，如果内存超出限制，应该削减内存
