@@ -1,9 +1,14 @@
 package consistenthansh
 
 import (
+	"fmt"
+	"sort"
 	"strconv"
 	"testing"
 )
+
+type student struct {
+}
 
 func TestMap_Add(t *testing.T) {
 	hash := New(3, func(key []byte) uint32 {
@@ -33,4 +38,12 @@ func TestMap_Add(t *testing.T) {
 			t.Errorf("Asking for %s,should have yielded %s", k, v)
 		}
 	}
+}
+
+func TestMap_Get(t *testing.T) {
+	fmt.Println(10 >> 1)
+	search := sort.Search(10, func(i int) bool {
+		return i > 2
+	})
+	fmt.Println(search)
 }
